@@ -1,0 +1,14 @@
+{
+  "name": "painel-vagas-neon",
+  "version": "1.0.0",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^4.22.2",
+    "pg": "^8.20.0"
+  }
+}
