@@ -5,8 +5,27 @@ const cors = require('cors'); // Importante para o React conseguir ler a API
 
 const app = express();
 
+const origensPermitidas = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://front-vagas-sine.vercel.app/' 
+];
+
 // Ativa o CORS para que seu front-end React (em outro domínio ou porta) acesse a API
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    // Permite requisições sem origem (como aplicativos mobile, Postman ou ferramentas de teste)
+    if (!origin) return callback(null, true);
+    
+    if (origensPermitidas.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Bloqueado pelo CORS: Esta origem não tem permissão de acesso.'));
+    }
+  },
+  methods: ['GET', 'OPTIONS'], // Como é apenas exposição, liberamos só GET e o pre-flight (OPTIONS)
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 const pool = new Pool({
@@ -19,14 +38,34 @@ const pool = new Pool({
 // Rota simplificada: GET /api/vagas
 app.get('/api/vagas', async (req, res) => {
   try {
-    const { busca } = req.query;
+    const { busca, escolaridade, genero, observacao } = req.query;
     
     let query = 'SELECT * FROM vagas_vaga WHERE expired = false';
     let params = [];
+    let placeholderIdx = 1;
 
     if (busca) {
-      query += ' AND (titulo ILIKE $1 OR empresa ILIKE $1 OR cidade ILIKE $1)';
+      query += ` AND (titulo ILIKE $${placeholderIdx} OR empresa ILIKE $${placeholderIdx} OR cidade ILIKE $${placeholderIdx})`;
       params.push(`%${busca}%`);
+      placeholderIdx++;
+    }
+
+    if (escolaridade) {
+      query += ` AND escolaridade ILIKE $${placeholderIdx}`;
+      params.push(`%${escolaridade}%`);
+      placeholderIdx++;
+    }
+
+    if (genero) {
+      query += ` AND genero ILIKE $${placeholderIdx}`;
+      params.push(`%${genero}%`);
+      placeholderIdx++;
+    }
+
+    if (observacao) {
+      query += ` AND observacao ILIKE $${placeholderIdx}`;
+      params.push(`%${observacao}%`);
+      placeholderIdx++;
     }
 
     query += ' ORDER BY id DESC';
