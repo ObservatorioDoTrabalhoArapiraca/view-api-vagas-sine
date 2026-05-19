@@ -8,7 +8,7 @@ const app = express();
 const origensPermitidas = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://front-vagas-sine.vercel.app/' 
+  'https://front-vagas-sine.vercel.app' 
 ];
 
 // Ativa o CORS para que seu front-end React (em outro domínio ou porta) acesse a API
@@ -17,14 +17,15 @@ app.use(cors({
     // Permite requisições sem origem (como aplicativos mobile, Postman ou ferramentas de teste)
     if (!origin) return callback(null, true);
     
-    if (origensPermitidas.indexOf(origin) !== -1) {
+    if (origensPermitidas.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
       callback(new Error('Bloqueado pelo CORS: Esta origem não tem permissão de acesso.'));
     }
   },
   methods: ['GET', 'OPTIONS'], // Como é apenas exposição, liberamos só GET e o pre-flight (OPTIONS)
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json());
 
