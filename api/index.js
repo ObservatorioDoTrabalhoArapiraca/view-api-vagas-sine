@@ -6,9 +6,10 @@ const cors = require('cors'); // Importante para o React conseguir ler a API
 const app = express();
 
 const origensPermitidas = [
+  'http://127.0.0.1:5173',
+  'https://front-vagas-sine.vercel.app', 
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://front-vagas-sine.vercel.app' 
 ];
 
 // Ativa o CORS para que seu front-end React (em outro domínio ou porta) acesse a API
@@ -25,7 +26,8 @@ app.use(cors({
   },
   methods: ['GET', 'OPTIONS'], // Como é apenas exposição, liberamos só GET e o pre-flight (OPTIONS)
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 app.use(express.json());
 
